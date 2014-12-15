@@ -1,7 +1,8 @@
 'use strict';
-// **Github:** https://github.com/toajs/toa
+// **Github:** https://github.com/toajs/toa-body
 //
 // **License:** MIT
+
 var Toa = require('toa');
 var Router = require('toa-router');
 var BodyParser = require('../');

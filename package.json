@@ -4,17 +4,19 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:toajs/toa-body.git"
   },
+  "engines": {
+    "node": ">=0.10.0"
+  },
   "homepage": "https://github.com/toajs/toa-body",
   "keywords": [
     "toa",
     "toa-module",
-    "toa-middleware",
     "body",
     "parser"
   ],
@@ -27,12 +29,11 @@
     "gulp-jshint": ">=1.8.4",
     "gulp-mocha": ">=1.0.0",
     "gulp-sequence": ">=0.3.0",
-    "http-errors": "^1.2.8",
     "mocha": ">=1.21.0",
-    "should": "^4.3.1",
-    "supertest": "^0.15.0",
-    "toa": "^0.3.0",
-    "toa-router": "^0.1.0"
+    "should": ">=4.3.1",
+    "supertest": ">=0.15.0",
+    "toa": ">=0.4.2",
+    "toa-router": ">=0.1.0"
   },
   "scripts": {
     "test": "gulp test"

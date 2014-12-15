@@ -1,5 +1,5 @@
 'use strict';
-// **Github:** https://github.com/toajs/toa-router
+// **Github:** https://github.com/toajs/toa-body
 //
 // **License:** MIT
 
