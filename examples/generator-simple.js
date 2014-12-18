@@ -11,16 +11,16 @@ var router = new Router();
 var bodyParser = BodyParser();
 
 router.define('/')
-  .get(function (Thunk) {
+  .get(function(Thunk) {
     this.body = 'Hi, toa body';
   })
-  .post(function* (Thunk) {
+  .post(function*(Thunk) {
     this.body = yield bodyParser(this.request, Thunk);
   })
-  .put(function* (Thunk) {
+  .put(function*(Thunk) {
     this.body = yield bodyParser(this.request, Thunk);
   });
 
-Toa(function* (Thunk) {
+Toa(function*(Thunk) {
   yield router.route(this, Thunk);
 }).listen(3000);

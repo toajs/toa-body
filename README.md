@@ -1,4 +1,4 @@
-toa-body v1.0.1 [![Build Status](https://travis-ci.org/toajs/toa-body.svg)](https://travis-ci.org/toajs/toa-body)
+toa-body v1.0.2 [![Build Status](https://travis-ci.org/toajs/toa-body.svg)](https://travis-ci.org/toajs/toa-body)
 ====
 Request body parser for toa.
 

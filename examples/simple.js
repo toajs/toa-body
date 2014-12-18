@@ -11,20 +11,20 @@ var router = new Router();
 var bodyParser = BodyParser();
 
 router.define('/')
-  .get(function (Thunk) {
+  .get(function(Thunk) {
     this.body = 'Hi, toa body';
   })
-  .post(function (Thunk) {
-    return bodyParser.call(this, this.request, Thunk)(function (err, body) {
+  .post(function(Thunk) {
+    return bodyParser.call(this, this.request, Thunk)(function(err, body) {
       this.body = body;
     });
   })
-  .put(function (Thunk) {
-    return bodyParser.call(this, this.request, Thunk)(function (err, body) {
+  .put(function(Thunk) {
+    return bodyParser.call(this, this.request, Thunk)(function(err, body) {
       this.body = body;
     });
   });
 
-Toa(function (Thunk) {
+Toa(function(Thunk) {
   return router.route(this, Thunk);
 }).listen(3000);

@@ -4,12 +4,12 @@
 // **License:** MIT
 
 /**!
-* modified from https://github.com/koajs/body-parser
-*
-* Authors:
-*   dead_horse <dead_horse@qq.com> (http://deadhorse.me)
-*   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
-*/
+ * modified from https://github.com/koajs/body-parser
+ *
+ * Authors:
+ *   dead_horse <dead_horse@qq.com> (http://deadhorse.me)
+ *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
+ */
 
 var parse = require('co-body');
 var copy = require('copy-to');
@@ -22,7 +22,7 @@ var copy = require('copy-to');
  *   - {Object} extendTypes
  */
 
-module.exports = function (opts) {
+module.exports = function(opts) {
   opts = opts || {};
   var jsonOpts = jsonOptions(opts);
   var formOpts = formOptions(opts);
@@ -54,7 +54,7 @@ module.exports = function (opts) {
       else body = null;
     }
 
-    return Thunk.call(this, body)(function (err, res) {
+    return Thunk.call(this, body)(function(err, res) {
       if (err) throw err;
       request.body = res;
       return res;
