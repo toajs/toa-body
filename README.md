@@ -1,63 +1,55 @@
-toa-body v1.0.2 [![Build Status](https://travis-ci.org/toajs/toa-body.svg)](https://travis-ci.org/toajs/toa-body)
+toa-body
 ====
 Request body parser for toa.
+
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Talk topic][talk-image]][talk-url]
 
 ## [toa](https://github.com/toajs/toa)
 
 ## Demo
 
 ```js
-var Toa = require('toa');
-var Router = require('toa-router');
-var BodyParser = require('toa-body');
+var toa = require('toa');
+var toaBody = require('toa-body');
 
-var router = new Router();
-var bodyParser = BodyParser();
-
-router.define('/')
-  .get(function (Thunk) {
-    this.body = 'Hi, toa body';
-  })
-  .post(function (Thunk) {
-    return bodyParser.call(this, this.request, Thunk)(function (err, body) {
-      this.body = body;
-    });
-  })
-  .put(function (Thunk) {
-    return bodyParser.call(this, this.request, Thunk)(function (err, body) {
-      this.body = body;
-    });
+var app = toa(function(Thunk) {
+  this.parseBody(Thunk)(function(err, body) {
+    this.body = body;
   });
+});
 
-Toa(function (Thunk) {
-  return router.route(this, Thunk);
-}).listen(3000);
+toaBody(app);
+app.listen(3000);
+```
+
+**or:**
+```js
+var toa = require('toa');
+var toaBody = require('toa-body');
+
+var app = toa(function(Thunk) {
+  Thunk.call(this, this.parseBody())(function(err, body) {
+    this.body = body;
+  });
+});
+
+toaBody(app);
+app.listen(3000);
 ```
 
 **using generator:**
-
 ```js
-var Toa = require('toa');
-var Router = require('toa-router');
-var BodyParser = require('toa-body');
+var toa = require('toa');
+var toaBody = require('toa-body');
 
-var router = new Router();
-var bodyParser = BodyParser();
+var app = toa(function*(Thunk) {
+  this.body = yield this.parseBody();
+});
 
-router.define('/')
-  .get(function (Thunk) {
-    this.body = 'Hi, toa body';
-  })
-  .post(function* (Thunk) {
-    this.body = yield bodyParser(this.request, Thunk);
-  })
-  .put(function* (Thunk) {
-    this.body = yield bodyParser(this.request, Thunk);
-  });
-
-Toa(function* (Thunk) {
-  yield router.route(this, Thunk);
-}).listen(3000);
+toaBody(app);
+app.listen(3000);
 ```
 
 ## Installation
@@ -69,9 +61,11 @@ npm install toa-body
 ## API
 
 ```js
-var BodyParser = require('toa-body');
+var toaBody = require('toa-body');
 ```
-### bodyParser = BodyParser([options])
+### toaBody(app, [options])
+
+It will add `parseBody` method to `context`.
 
 - `options.encode`: requested encoding. Default is `utf-8` by `co-body`
 - `options.formLimit`: limit of the `urlencoded` body. If the body ends up being larger than this limit, a 413 error code is returned. Default is `56kb`
@@ -79,26 +73,41 @@ var BodyParser = require('toa-body');
 - `options.extendTypes`: support extend types:
 
 ```js
-var bodyParser = BodyParser({
+toaBody(app, {
   extendTypes: {
     json: ['application/x-javascript'] // will parse application/x-javascript type body as a JSON string
   }
 }));
 ```
 
-### bodyParser(request, Thunk)
+### context.parseBody([Thunk])
 
-Return thunk.
+If `Thunk` is provided, it return a thunk function that wraped by `Thunk`, otherwise return a pure thunk function.
 
 ```js
-bodyParser.call(this, this.request, Thunk)(function (err, body) {
+this.parseBody(Thunk)(function(err, body) {
   this.body = body;
 });
 ```
 
 ```js
-this.body = yield bodyParser(this.request, Thunk);
+Thunk.call(this, this.parseBody())(function(err, body) {
+  this.body = body;
+});
+```
+
+```js
+this.body = yield this.parseBody();
 ```
 
 ## Licences
 (The MIT License)
+
+[npm-url]: https://npmjs.org/package/toa-body
+[npm-image]: http://img.shields.io/npm/v/toa-body.svg
+
+[travis-url]: https://travis-ci.org/toajs/toa-body
+[travis-image]: http://img.shields.io/travis/toajs/toa-body.svg
+
+[talk-url]: https://guest.talk.ai/rooms/a6a9331024
+[talk-image]: https://img.shields.io/talk/t/a6a9331024.svg

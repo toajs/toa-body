@@ -22,7 +22,8 @@ var copy = require('copy-to');
  *   - {Object} extendTypes
  */
 
-module.exports = function(opts) {
+module.exports = function toaBody(app, opts) {
+  if (app.context.parseBody) throw new Error('app.context.parseBody is exist!');
   opts = opts || {};
   var jsonOpts = jsonOptions(opts);
   var formOpts = formOptions(opts);
@@ -44,21 +45,29 @@ module.exports = function(opts) {
   extendType(jsonTypes, extendTypes.json);
   extendType(formTypes, extendTypes.form);
 
-  return function bodyParser(request, Thunk) {
-    request = request.request || request;
+  app.context.parseBody = function(Thunk) {
+    var request = this.request;
     var body = request.body;
-
     if (body === undefined) {
-      if (request.is(jsonTypes)) body = parse.json(request, jsonOpts);
-      else if (request.is(formTypes)) body = parse.form(request, formOpts);
+      if (this.is(jsonTypes)) body = parse.json(request, jsonOpts);
+      else if (this.is(formTypes)) body = parse.form(request, formOpts);
       else body = null;
     }
 
-    return Thunk.call(this, body)(function(err, res) {
-      if (err) throw err;
-      request.body = res;
-      return res;
-    });
+    if (!Thunk || !Thunk.thunkify) return thunk;
+    return Thunk.call(this, thunk);
+
+    function thunk(done) {
+      if (typeof body !== 'function') {
+        request.body = body;
+        return done(null, body);
+      }
+      return body(function(err, res) {
+        if (err != null) return done(err);
+        request.body = res;
+        done(null, res);
+      });
+    }
   };
 };
 

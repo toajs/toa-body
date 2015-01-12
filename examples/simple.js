@@ -3,28 +3,18 @@
 //
 // **License:** MIT
 
-var Toa = require('toa');
-var Router = require('toa-router');
-var BodyParser = require('../');
+var toa = require('toa');
+var toaBody = require('../index');
 
-var router = new Router();
-var bodyParser = BodyParser();
-
-router.define('/')
-  .get(function(Thunk) {
-    this.body = 'Hi, toa body';
-  })
-  .post(function(Thunk) {
-    return bodyParser.call(this, this.request, Thunk)(function(err, body) {
-      this.body = body;
-    });
-  })
-  .put(function(Thunk) {
-    return bodyParser.call(this, this.request, Thunk)(function(err, body) {
-      this.body = body;
-    });
+var app = toa(function(Thunk) {
+  this.parseBody(Thunk)(function(err, body) {
+    this.body = body;
   });
+  // or use as:
+  // Thunk.call(this, this.parseBody())(function(err, body) {
+  //   this.body = body;
+  // });
+});
 
-Toa(function(Thunk) {
-  return router.route(this, Thunk);
-}).listen(3000);
+toaBody(app);
+app.listen(3000);

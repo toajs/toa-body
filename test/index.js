@@ -17,16 +17,15 @@ var path = require('path');
 var assert = require('assert');
 var request = require('supertest');
 var Toa = require('toa');
-var BodyParser = require('../');
+var toaBody = require('../');
 
 var fixtures = path.join(__dirname, 'fixtures');
 
 describe('toa-body', function() {
   describe('json body', function() {
     it('should parse json body ok', function(done) {
-      var bodyParser = BodyParser();
       var app = Toa(function(Thunk) {
-        return Thunk.call(this, bodyParser(this.request, Thunk))(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           assert.equal(this.request.body, body);
           assert.deepEqual(this.request.body, {
             foo: 'bar'
@@ -35,7 +34,8 @@ describe('toa-body', function() {
         });
       });
 
-      request(app.listen(3000))
+      toaBody(app);
+      request(app.listen())
         .post('/')
         .send({
           foo: 'bar'
@@ -46,12 +46,11 @@ describe('toa-body', function() {
     });
 
     it('should parse json body with json-api headers ok', function(done) {
-      var bodyParser = BodyParser();
       var app = Toa(function(Thunk) {
-        return Thunk.call(this, bodyParser(this.request, Thunk))(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           assert.equal(this.request.body, body);
           // should work when use body parser again
-          return bodyParser(this.request, Thunk);
+          return this.parseBody();
         })(function(err, body) {
           assert.deepEqual(this.request.body, {
             foo: 'bar'
@@ -59,8 +58,8 @@ describe('toa-body', function() {
           this.body = body;
         });
       });
-
-      request(app.listen(3000))
+      toaBody(app);
+      request(app.listen())
         .post('/')
         .set('Accept', 'application/vnd.api+json')
         .set('Content-type', 'application/vnd.api+json')
@@ -71,9 +70,8 @@ describe('toa-body', function() {
     });
 
     it('should parse json patch', function(done) {
-      var bodyParser = BodyParser();
       var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           assert.deepEqual(this.request.body, [{
             op: 'add',
             path: '/foo',
@@ -82,8 +80,8 @@ describe('toa-body', function() {
           this.body = body;
         });
       });
-
-      request(app.listen(3000))
+      toaBody(app);
+      request(app.listen())
         .patch('/')
         .set('Content-type', 'application/json-patch+json')
         .send('[{"op": "add", "path": "/foo", "value": "bar"}]')
@@ -95,13 +93,13 @@ describe('toa-body', function() {
     });
 
     it('should json body reach the limit size', function(done) {
-      var bodyParser = BodyParser({
-        jsonLimit: 100
-      });
       var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           this.body = body;
         });
+      });
+      toaBody(app, {
+        jsonLimit: 100
       });
       request(app.listen(3000))
         .post('/')
@@ -112,9 +110,8 @@ describe('toa-body', function() {
 
   describe('form body', function() {
     it('should parse form body ok', function(done) {
-      var bodyParser = BodyParser();
       var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           assert.deepEqual(this.request.body, {
             foo: {
               bar: 'baz'
@@ -123,7 +120,7 @@ describe('toa-body', function() {
           this.body = body;
         });
       });
-
+      toaBody(app);
       request(app.listen(3000))
         .post('/')
         .type('form')
@@ -140,15 +137,14 @@ describe('toa-body', function() {
     });
 
     it('should parse form body reach the limit size', function(done) {
-      var bodyParser = BodyParser({
-        formLimit: 10
-      });
       var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           this.body = body;
         });
       });
-
+      toaBody(app, {
+        formLimit: 10
+      });
       request(app.listen(3000))
         .post('/')
         .type('form')
@@ -163,17 +159,16 @@ describe('toa-body', function() {
 
   describe('extent type', function() {
     it('should extent json ok', function(done) {
-      var bodyParser = BodyParser({
+      var app = Toa(function(Thunk) {
+        return this.parseBody(Thunk)(function(err, body) {
+          this.body = body;
+        });
+      });
+      toaBody(app, {
         extendTypes: {
           json: 'application/x-javascript'
         }
       });
-      var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
-          this.body = body;
-        });
-      });
-
       request(app.listen(3000))
         .post('/')
         .type('application/x-javascript')
@@ -186,17 +181,16 @@ describe('toa-body', function() {
     });
 
     it('should extent json with array ok', function(done) {
-      var bodyParser = BodyParser({
+      var app = Toa(function(Thunk) {
+        return this.parseBody(Thunk)(function(err, body) {
+          this.body = body;
+        });
+      });
+      toaBody(app, {
         extendTypes: {
           json: ['application/x-javascript', 'application/y-javascript']
         }
       });
-      var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
-          this.body = body;
-        });
-      });
-
       request(app.listen(3000))
         .post('/')
         .type('application/x-javascript')
@@ -211,14 +205,13 @@ describe('toa-body', function() {
 
   describe('other type', function() {
     it('should get body null', function(done) {
-      var bodyParser = BodyParser();
       var app = Toa(function(Thunk) {
-        return bodyParser.call(this, this.request, Thunk)(function(err, body) {
+        return this.parseBody(Thunk)(function(err, body) {
           assert.equal(body, null);
           done();
         });
       });
-
+      toaBody(app);
       request(app.listen(3000))
         .get('/')
         .end(function() {});
