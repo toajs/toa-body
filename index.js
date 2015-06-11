@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 // **Github:** https://github.com/toajs/toa-body
 //
 // **License:** MIT
@@ -11,8 +11,8 @@
  *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
  */
 
-var parse = require('co-body');
-var copy = require('copy-to');
+var parse = require('co-body')
+var copy = require('copy-to')
 
 /**
  * @param [Object] opts
@@ -22,72 +22,70 @@ var copy = require('copy-to');
  *   - {Object} extendTypes
  */
 
-module.exports = function toaBody(app, opts) {
-  if (app.context.parseBody) throw new Error('app.context.parseBody is exist!');
-  opts = opts || {};
-  var jsonOpts = jsonOptions(opts);
-  var formOpts = formOptions(opts);
-  var extendTypes = opts.extendTypes || {};
+module.exports = function toaBody (app, opts) {
+  if (app.context.parseBody) throw new Error('app.context.parseBody is exist!')
+  opts = opts || {}
+  var jsonOpts = jsonOptions(opts)
+  var formOpts = formOptions(opts)
+  var extendTypes = opts.extendTypes || {}
 
   // default json types
   var jsonTypes = [
     'application/json',
     'application/json-patch+json',
     'application/vnd.api+json',
-    'application/csp-report',
-  ];
+    'application/csp-report'
+  ]
 
   // default form types
   var formTypes = [
-    'application/x-www-form-urlencoded',
-  ];
+    'application/x-www-form-urlencoded'
+  ]
 
-  extendType(jsonTypes, extendTypes.json);
-  extendType(formTypes, extendTypes.form);
+  extendType(jsonTypes, extendTypes.json)
+  extendType(formTypes, extendTypes.form)
 
-  app.context.parseBody = function(Thunk) {
-    var request = this.request;
-    var body = request.body;
-    if (body === undefined) {
-      if (this.is(jsonTypes)) body = parse.json(request, jsonOpts);
-      else if (this.is(formTypes)) body = parse.form(request, formOpts);
-      else body = null;
-    }
-
-    if (!Thunk || !Thunk.thunkify) return thunk;
-    return Thunk.call(this, thunk);
-
-    function thunk(done) {
-      if (typeof body !== 'function') {
-        request.body = body;
-        return done(null, body);
+  app.request.body = undefined
+  app.context.parseBody = function () {
+    return this.thunk(function (done) {
+      var request = this.request
+      var body = request.body
+      if (body === undefined) {
+        if (this.is(jsonTypes)) body = parse.json(request, jsonOpts)
+        else if (this.is(formTypes)) body = parse.form(request, formOpts)
+        else body = null
       }
-      return body(function(err, res) {
-        if (err != null) return done(err);
-        request.body = res;
-        done(null, res);
-      });
-    }
-  };
-};
 
-function jsonOptions(opts) {
-  var jsonOpts = {};
-  copy(opts).to(jsonOpts);
-  jsonOpts.limit = opts.jsonLimit;
-  return jsonOpts;
+      if (typeof body !== 'function') {
+        request.body = body
+        return done(null, body)
+      }
+      return body(function (err, res) {
+        if (err != null) return done(err)
+        request.body = res
+        done(null, res)
+      })
+    })
+  }
 }
 
-function formOptions(opts) {
-  var formOpts = {};
-  copy(opts).to(formOpts);
-  formOpts.limit = opts.formLimit;
-  return formOpts;
+function jsonOptions (opts) {
+  var jsonOpts = {}
+  copy(opts).to(jsonOpts)
+  jsonOpts.limit = opts.jsonLimit
+  return jsonOpts
 }
 
-function extendType(original, extend) {
+function formOptions (opts) {
+  var formOpts = {}
+  copy(opts).to(formOpts)
+  formOpts.limit = opts.formLimit
+  return formOpts
+}
+
+function extendType (original, extend) {
   if (extend) {
-    if (!Array.isArray(extend)) extend = [extend];
-    extend.forEach(original.push.bind(original));
+    if (!Array.isArray(extend)) extend = [extend]
+    extend.forEach(original.push.bind(original))
   }
 }

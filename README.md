@@ -11,45 +11,30 @@ Request body parser for toa.
 ## Demo
 
 ```js
-var toa = require('toa');
-var toaBody = require('toa-body');
+var toa = require('toa')
+var toaBody = require('toa-body')
 
-var app = toa(function(Thunk) {
-  this.parseBody(Thunk)(function(err, body) {
-    this.body = body;
-  });
-});
+var app = toa(function * () {
+  this.body = yield this.parseBody()
+})
 
-toaBody(app);
-app.listen(3000);
+toaBody(app)
+app.listen(3000)
 ```
 
-**or:**
+**or old style:**
 ```js
-var toa = require('toa');
-var toaBody = require('toa-body');
+var toa = require('toa')
+var toaBody = require('toa-body')
 
-var app = toa(function(Thunk) {
-  Thunk.call(this, this.parseBody())(function(err, body) {
-    this.body = body;
-  });
-});
+var app = toa(function() {
+  return this.parseBody()(function(err, body) {
+    this.body = body
+  })
+})
 
-toaBody(app);
-app.listen(3000);
-```
-
-**using generator:**
-```js
-var toa = require('toa');
-var toaBody = require('toa-body');
-
-var app = toa(function*(Thunk) {
-  this.body = yield this.parseBody();
-});
-
-toaBody(app);
-app.listen(3000);
+toaBody(app)
+app.listen(3000)
 ```
 
 ## Installation
@@ -61,7 +46,7 @@ npm install toa-body
 ## API
 
 ```js
-var toaBody = require('toa-body');
+var toaBody = require('toa-body')
 ```
 ### toaBody(app, [options])
 
@@ -77,27 +62,22 @@ toaBody(app, {
   extendTypes: {
     json: ['application/x-javascript'] // will parse application/x-javascript type body as a JSON string
   }
-}));
+}))
 ```
 
-### context.parseBody([Thunk])
+### context.parseBody()
 
-If `Thunk` is provided, it return a thunk function that wraped by `Thunk`, otherwise return a pure thunk function.
-
-```js
-this.parseBody(Thunk)(function(err, body) {
-  this.body = body;
-});
-```
+return thunk function.
 
 ```js
-Thunk.call(this, this.parseBody())(function(err, body) {
-  this.body = body;
-});
+this.body = yield this.parseBody()
 ```
 
 ```js
-this.body = yield this.parseBody();
+this.parseBody()(function(err, body) {
+  // this.request.body === body
+  this.body = body
+})
 ```
 
 ## Licences
