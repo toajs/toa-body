@@ -14,7 +14,7 @@ Request body parser for toa.
 var toa = require('toa')
 var toaBody = require('toa-body')
 
-var app = toa(function * () {
+var app = toa(function *() {
   this.body = yield this.parseBody()
 })
 
@@ -27,7 +27,7 @@ app.listen(3000)
 var toa = require('toa')
 var toaBody = require('toa-body')
 
-var app = toa(function() {
+var app = toa(function () {
   return this.parseBody()(function(err, body) {
     this.body = body
   })
@@ -74,7 +74,7 @@ this.body = yield this.parseBody()
 ```
 
 ```js
-this.parseBody()(function(err, body) {
+this.parseBody()(function (err, body) {
   // this.request.body === body
   this.body = body
 })

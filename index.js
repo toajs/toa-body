@@ -3,7 +3,7 @@
 //
 // **License:** MIT
 
-/**!
+/**
  * modified from https://github.com/koajs/body-parser
  *
  * Authors:
