@@ -47,24 +47,17 @@ module.exports = function toaBody (app, opts) {
 
   app.request.body = undefined
   app.context.parseBody = function () {
-    return this.thunk(function (done) {
-      var request = this.request
-      var body = request.body
-      if (body === undefined) {
-        if (this.is(jsonTypes)) body = parse.json(request, jsonOpts)
-        else if (this.is(formTypes)) body = parse.form(request, formOpts)
-        else body = null
-      }
-
-      if (typeof body !== 'function') {
-        request.body = body
-        return done(null, body)
-      }
-      return body(function (err, res) {
-        if (err != null) return done(err)
-        request.body = res
-        done(null, res)
-      })
+    var request = this.request
+    var body = request.body
+    if (body === undefined) {
+      if (this.is(jsonTypes)) body = parse.json(request, jsonOpts)
+      else if (this.is(formTypes)) body = parse.form(request, formOpts)
+      else body = null
+    }
+    return this.thunk(body)(function (err, res) {
+      if (err != null) throw err
+      request.body = res
+      return res
     })
   }
 }
