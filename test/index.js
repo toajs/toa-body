@@ -11,19 +11,18 @@
  *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
  */
 
-/* global describe, it*/
-
 var path = require('path')
+var tman = require('tman')
 var assert = require('assert')
 var request = require('supertest')
 var Toa = require('toa')
-var toaBody = require('../')
+var toaBody = require('..')
 
 var fixtures = path.join(__dirname, 'fixtures')
 
-describe('toa-body', function () {
-  describe('json body', function () {
-    it('should parse json body ok', function (done) {
+tman.suite('toa-body', function () {
+  tman.suite('json body', function () {
+    tman.it('should parse json body ok', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -46,7 +45,7 @@ describe('toa-body', function () {
         }, done)
     })
 
-    it('should parse json body with json-api headers ok', function (done) {
+    tman.it('should parse json body with json-api headers ok', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -72,7 +71,7 @@ describe('toa-body', function () {
         }, done)
     })
 
-    it('should parse json patch', function (done) {
+    tman.it('should parse json patch', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -96,7 +95,7 @@ describe('toa-body', function () {
         }], done)
     })
 
-    it('should json body reach the limit size', function (done) {
+    tman.it('should json body reach the limit size', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -113,8 +112,8 @@ describe('toa-body', function () {
     })
   })
 
-  describe('form body', function () {
-    it('should parse form body ok', function (done) {
+  tman.suite('form body', function () {
+    tman.it('should parse form body ok', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -142,7 +141,7 @@ describe('toa-body', function () {
         }, done)
     })
 
-    it('should parse form body reach the limit size', function (done) {
+    tman.it('should parse form body reach the limit size', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -164,8 +163,8 @@ describe('toa-body', function () {
     })
   })
 
-  describe('extent type', function () {
-    it('should extent json ok', function (done) {
+  tman.suite('extent type', function () {
+    tman.it('should extent json ok', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -188,7 +187,7 @@ describe('toa-body', function () {
         }, done)
     })
 
-    it('should extent json with array ok', function (done) {
+    tman.it('should extent json with array ok', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
@@ -212,8 +211,8 @@ describe('toa-body', function () {
     })
   })
 
-  describe('other type', function () {
-    it('should get body null', function (done) {
+  tman.suite('other type', function () {
+    tman.it('should get body null', function (done) {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
