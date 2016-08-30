@@ -22,21 +22,6 @@ toaBody(app)
 app.listen(3000)
 ```
 
-**or old style:**
-```js
-var toa = require('toa')
-var toaBody = require('toa-body')
-
-var app = toa(function () {
-  return this.parseBody()(function(err, body) {
-    this.body = body
-  })
-})
-
-toaBody(app)
-app.listen(3000)
-```
-
 ## Installation
 
 ```bash
