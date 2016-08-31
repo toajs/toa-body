@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "1.3.2",
+  "version": "1.4.0",
   "main": "index.js",
   "license": "MIT",
   "repository": {
@@ -22,8 +22,9 @@
     "parser"
   ],
   "dependencies": {
-    "co-body": "~4.2.0",
-    "copy-to": "^2.0.1"
+    "inflation": "^2.0.0",
+    "qs": "^5.2.1",
+    "raw-body": "^2.1.7"
   },
   "devDependencies": {
     "standard": "^8.0.0",

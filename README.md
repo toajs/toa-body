@@ -37,15 +37,27 @@ var toaBody = require('toa-body')
 
 It will add `parseBody` method to `context`.
 
-- `options.encode`: requested encoding. Default is `utf-8` by `co-body`
+- `options.encoding`: requested encoding. Default is `utf8`.
 - `options.formLimit`: limit of the `urlencoded` body. If the body ends up being larger than this limit, a 413 error code is returned. Default is `56kb`
 - `options.jsonLimit`: limit of the `json` body. Default is `1mb`
 - `options.extendTypes`: support extend types:
-
 ```js
 toaBody(app, {
   extendTypes: {
     json: ['application/x-javascript'] // will parse application/x-javascript type body as a JSON string
+  }
+}))
+```
+- `options.parse`: support custom parse:
+```js
+var parseString = require('xml2js').parseString
+
+toaBody(app, {
+  parse: function (buf) {
+    var str = buf.toString('utf8')
+    // return promise or thunk function for async task
+    if (this.is('xml')) return function (done) { parseString(str, done) }
+    return str
   }
 }))
 ```
