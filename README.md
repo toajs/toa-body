@@ -50,14 +50,14 @@ toaBody(app, {
 ```
 - `options.parse`: support custom parse:
 ```js
-var parseString = require('xml2js').parseString
+var parseXml = require('xml2js').parseString
 
 toaBody(app, {
   parse: function (buf) {
     var str = buf.toString('utf8')
+    if (!this.is('text/xml')) return str
     // return promise or thunk function for async task
-    if (this.is('xml')) return function (done) { parseString(str, done) }
-    return str
+    return function (done) { parseXml(str, done) }
   }
 }))
 ```
