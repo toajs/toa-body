@@ -14,11 +14,25 @@ Request body parser for toa.
 var toa = require('toa')
 var toaBody = require('toa-body')
 
-var app = toa(function *() {
+var app = toa()
+toaBody(app)
+
+app.use(function * () {
   this.body = yield this.parseBody()
 })
+app.listen(3000)
+```
 
-toaBody(app)
+```js
+var toa = require('toa')
+var toaBody = require('toa-body')
+
+var app = toa()
+app.use(toaBody()) //  It will try to parse body for every request.
+
+app.use(function () {
+  this.body = yield this.request.body
+})
 app.listen(3000)
 ```
 
@@ -33,7 +47,7 @@ npm install toa-body
 ```js
 var toaBody = require('toa-body')
 ```
-### toaBody(app, [options])
+### toaBody(app[, options])
 
 It will add `parseBody` method to `context`.
 
@@ -62,7 +76,7 @@ toaBody(app, {
 }))
 ```
 
-### context.parseBody()
+#### context.parseBody()
 
 return thunk function.
 
@@ -76,6 +90,10 @@ this.parseBody()(function (err, body) {
   this.body = body
 })
 ```
+
+### app.use(toaBody([options]))
+
+Toa>=v1.8.0 required.
 
 ## Licences
 (The MIT License)

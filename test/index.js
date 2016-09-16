@@ -39,6 +39,21 @@ tman.suite('toa-body', function () {
         .expect({foo: 'bar'})
     })
 
+    tman.it('should support middleware style', function () {
+      var app = Toa()
+
+      app.use(toaBody())
+      app.use(function () {
+        assert.deepEqual(this.request.body, {foo: 'bar'})
+        this.body = this.request.body
+      })
+
+      return request(app.listen())
+        .post('/')
+        .send({foo: 'bar'})
+        .expect({foo: 'bar'})
+    })
+
     tman.it('should parse json body with json-api headers ok', function () {
       var app = Toa(function () {
         return this.parseBody()(function (err, body) {
@@ -85,10 +100,7 @@ tman.suite('toa-body', function () {
 
     tman.it('should json body reach the limit size', function () {
       var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+        return this.parseBody()
       })
       toaBody(app, {
         jsonLimit: 100
@@ -121,10 +133,7 @@ tman.suite('toa-body', function () {
 
     tman.it('should parse form body reach the limit size', function () {
       var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+        return this.parseBody()
       })
       toaBody(app, {formLimit: 10})
 

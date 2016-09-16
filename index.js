@@ -9,6 +9,7 @@
 
 var qs = require('qs')
 var raw = require('raw-body')
+var thunk = require('thunks')()
 var inflate = require('inflation')
 var assign = Object.assign || function (target) {
   for (var index = 1; index < arguments.length; index++) {
@@ -36,7 +37,10 @@ var strictJSONReg = /^[\x20\x09\x0a\x0d]*(\[|\{)/ // eslint-disable-line
  *   - {Object} extendTypes
  */
 module.exports = function toaBody (app, opts) {
-  if (app.context.parseBody) throw new Error('app.context.parseBody is exist!')
+  if (app && !app.context) {
+    opts = app
+    app = null
+  }
   opts = opts || {}
   var extendTypes = opts.extendTypes || {}
 
@@ -66,37 +70,42 @@ module.exports = function toaBody (app, opts) {
     return (value instanceof Buffer && !value.length) ? null : value
   }
 
-  app.request.body = undefined
-  app.context.parseBody = function () {
+  function parseBody () {
     var ctx = this
     var options = defaultOpts
     var parse = defaultParse
     var body = this.request.body
-    if (body === undefined) {
-      if (this.is(jsonTypes)) {
-        parse = jsonParse
-        options = jsonOpts
-      } else if (this.is(formTypes)) {
-        parse = formParse
-        options = formOpts
-      }
-
-      body = getRawBody(this.req, options).then(function (str) {
-        try {
-          return parse.call(ctx, str)
-        } catch (err) {
-          err.status = 400
-          err.body = str
-          throw err
-        }
-      })
+    if (body !== undefined) return thunk.call(this, body)
+    if (this.is(jsonTypes)) {
+      parse = jsonParse
+      options = jsonOpts
+    } else if (this.is(formTypes)) {
+      parse = formParse
+      options = formOpts
     }
-    return this.thunk(body)(function (err, res) {
+
+    body = getRawBody(this.req, options).then(function (str) {
+      try {
+        return parse.call(ctx, str)
+      } catch (err) {
+        err.status = 400
+        err.body = str
+        throw err
+      }
+    })
+    return thunk.call(this, body)(function (err, res) {
       if (err != null) throw err
-      this.request.body = res
+      ctx.request.body = res
       return res
     })
   }
+
+  if (app) {
+    if (app.context.parseBody) throw new Error('app.context.parseBody is exist!')
+    app.request.body = undefined
+    app.context.parseBody = parseBody
+  }
+  return parseBody
 }
 
 function getOptions (opts1, opts2, type) {
