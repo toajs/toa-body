@@ -4,7 +4,7 @@
   "authors": [
     "Yan Qing <admin@zensh.com>"
   ],
-  "version": "1.4.1",
+  "version": "2.0.0",
   "main": "index.js",
   "license": "MIT",
   "repository": {
@@ -23,15 +23,15 @@
   ],
   "dependencies": {
     "inflation": "^2.0.0",
-    "qs": "^6.2.1",
+    "qs": "^6.3.0",
     "raw-body": "^2.1.7",
-    "thunks": "^4.7.1"
+    "thunks": "^4.7.5"
   },
   "devDependencies": {
-    "standard": "^8.0.0",
-    "supertest": "^2.0.0",
-    "tman": "^1.4.5",
-    "toa": "^1.8"
+    "standard": "^8.6.0",
+    "supertest": "^2.0.1",
+    "tman": "^1.6.4",
+    "toa": "^2.5"
   },
   "scripts": {
     "test": "standard && tman"

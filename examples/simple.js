@@ -3,14 +3,12 @@
 //
 // **License:** MIT
 
-var toa = require('toa')
-var toaBody = require('../index')
+const Toa = require('toa')
+const toaBody = require('../index')
 
-var app = toa(function () {
-  return this.parseBody()(function (err, body) {
-    console.log(err, body, this.request.body)
-    this.body = body
-  })
+const app = new Toa()
+app.use(function * () {
+  this.body = yield this.parseBody()
 })
 
 toaBody(app)

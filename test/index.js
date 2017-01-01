@@ -11,19 +11,20 @@
  *   fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)
  */
 
-var path = require('path')
-var tman = require('tman')
-var assert = require('assert')
-var request = require('supertest')
-var Toa = require('toa')
-var toaBody = require('..')
+const path = require('path')
+const tman = require('tman')
+const assert = require('assert')
+const request = require('supertest')
+const Toa = require('toa')
+const toaBody = require('..')
 
-var fixtures = path.join(__dirname, 'fixtures')
+const fixtures = path.join(__dirname, 'fixtures')
 
 tman.suite('toa-body', function () {
   tman.suite('json body', function () {
     tman.it('should parse json body ok', function () {
-      var app = Toa(function () {
+      const app = new Toa()
+      app.use(function () {
         return this.parseBody()(function (err, body) {
           assert.strictEqual(err, null)
           assert.strictEqual(this.request.body, body)
@@ -40,7 +41,7 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should support middleware style', function () {
-      var app = Toa()
+      var app = new Toa()
 
       app.use(toaBody())
       app.use(function () {
@@ -55,17 +56,14 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should parse json body with json-api headers ok', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.strictEqual(this.request.body, body)
-          // should work when use body parser again
-          return this.parseBody()
-        })(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.deepEqual(this.request.body, {foo: 'bar'})
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        let body = yield this.parseBody()
+        assert.strictEqual(this.request.body, body)
+        // should work when use body parser again
+        body = yield this.parseBody()
+        assert.deepEqual(this.request.body, {foo: 'bar'})
+        this.body = body
       })
       toaBody(app)
 
@@ -78,16 +76,15 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should parse json patch', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.deepEqual(this.request.body, [{
-            op: 'add',
-            path: '/foo',
-            value: 'bar'
-          }])
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        let body = yield this.parseBody()
+        assert.deepEqual(this.request.body, [{
+          op: 'add',
+          path: '/foo',
+          value: 'bar'
+        }])
+        this.body = body
       })
       toaBody(app)
 
@@ -99,7 +96,8 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should json body reach the limit size', function () {
-      var app = Toa(function () {
+      var app = new Toa()
+      app.use(function () {
         return this.parseBody()
       })
       toaBody(app, {
@@ -115,12 +113,10 @@ tman.suite('toa-body', function () {
 
   tman.suite('form body', function () {
     tman.it('should parse form body ok', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.deepEqual(this.request.body, {foo: {bar: 'baz'}})
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        this.body = yield this.parseBody()
+        assert.deepEqual(this.body, {foo: {bar: 'baz'}})
       })
       toaBody(app)
 
@@ -132,8 +128,9 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should parse form body reach the limit size', function () {
-      var app = Toa(function () {
-        return this.parseBody()
+      var app = new Toa()
+      app.use(function * () {
+        yield this.parseBody()
       })
       toaBody(app, {formLimit: 10})
 
@@ -147,11 +144,9 @@ tman.suite('toa-body', function () {
 
   tman.suite('extent type', function () {
     tman.it('should extent json ok', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        this.body = yield this.parseBody()
       })
       toaBody(app, {
         extendTypes: {
@@ -167,11 +162,9 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should extent json with array ok', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        this.body = yield this.parseBody()
       })
       toaBody(app, {
         extendTypes: {
@@ -189,12 +182,11 @@ tman.suite('toa-body', function () {
 
   tman.suite('custom parse', function () {
     tman.it('parse buf when no encoding', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.equal(body, 'ok')
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        let body = yield this.parseBody()
+        assert.equal(body, 'ok')
+        this.body = body
       })
       toaBody(app, {
         parse: function (buf) {
@@ -211,11 +203,9 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('parse buf with encoding', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        this.body = yield this.parseBody()
       })
       toaBody(app, {
         encoding: 'utf8',
@@ -233,11 +223,9 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('parse return promise', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        this.body = yield this.parseBody()
       })
       toaBody(app, {
         encoding: 'utf8',
@@ -254,11 +242,9 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('parse return thunk function', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        this.body = yield this.parseBody()
       })
       toaBody(app, {
         encoding: 'utf8',
@@ -275,7 +261,8 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('parse error', function () {
-      var app = Toa(function () {
+      var app = new Toa()
+      app.use(function () {
         return this.parseBody()
       })
       toaBody(app, {
@@ -294,12 +281,11 @@ tman.suite('toa-body', function () {
 
   tman.suite('no body', function () {
     tman.it('should get null when no encoding', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.strictEqual(body, null)
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        let body = yield this.parseBody()
+        assert.strictEqual(body, null)
+        this.body = body
       })
       toaBody(app)
 
@@ -309,12 +295,11 @@ tman.suite('toa-body', function () {
     })
 
     tman.it('should get "" with encoding', function () {
-      var app = Toa(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
-          assert.strictEqual(body, '')
-          this.body = body
-        })
+      var app = new Toa()
+      app.use(function * () {
+        let body = yield this.parseBody()
+        assert.strictEqual(body, '')
+        this.body = body
       })
       toaBody(app, {encoding: 'utf8'})
 

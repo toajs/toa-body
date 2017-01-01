@@ -7,27 +7,14 @@
  * modified from https://github.com/koajs/body-parser
  */
 
-var qs = require('qs')
-var raw = require('raw-body')
-var thunk = require('thunks')()
-var inflate = require('inflation')
-var assign = Object.assign || function (target) {
-  for (var index = 1; index < arguments.length; index++) {
-    var source = arguments[index]
-    if (source != null) {
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key]
-        }
-      }
-    }
-  }
-  return target
-}
+const qs = require('qs')
+const raw = require('raw-body')
+const thunk = require('thunks')()
+const inflate = require('inflation')
 
 // Allowed whitespace is defined in RFC 7159
 // http://www.rfc-editor.org/rfc/rfc7159.txt
-var strictJSONReg = /^[\x20\x09\x0a\x0d]*(\[|\{)/ // eslint-disable-line
+const strictJSONReg = /^[\x20\x09\x0a\x0d]*(\[|\{)/ // eslint-disable-line
 
 /**
  * @param [Object] opts
@@ -42,10 +29,10 @@ module.exports = function toaBody (app, opts) {
     app = null
   }
   opts = opts || {}
-  var extendTypes = opts.extendTypes || {}
+  let extendTypes = opts.extendTypes || {}
 
   // default json types
-  var jsonTypes = [
+  let jsonTypes = [
     'application/json',
     'application/json-patch+json',
     'application/vnd.api+json',
@@ -53,28 +40,26 @@ module.exports = function toaBody (app, opts) {
   ]
 
   // default form types
-  var formTypes = [
+  let formTypes = [
     'application/x-www-form-urlencoded'
   ]
 
   extendType(jsonTypes, extendTypes.json)
   extendType(formTypes, extendTypes.form)
 
-  var jsonOpts = getOptions({jsonLimit: '1mb', encoding: 'utf8'}, opts, 'json')
-  var formOpts = getOptions({jsonLimit: '56kb', encoding: 'utf8'}, opts, 'form')
-  var defaultOpts = getOptions({defaultLimit: '1mb'}, opts, 'default')
+  let jsonOpts = getOptions({jsonLimit: '1mb', encoding: 'utf8'}, opts, 'json')
+  let formOpts = getOptions({jsonLimit: '56kb', encoding: 'utf8'}, opts, 'form')
+  let defaultOpts = getOptions({defaultLimit: '1mb'}, opts, 'default')
 
-  var jsonParse = getJsonParse(opts.strict !== false)
-  var formParse = getFormParse(opts.qs || qs, opts.qsOptions)
-  var defaultParse = opts.parse || function (value) {
-    return (value instanceof Buffer && !value.length) ? null : value
-  }
+  let jsonParse = getJsonParse(opts.strict !== false)
+  let formParse = getFormParse(opts.qs || qs, opts.qsOptions)
+  let defaultParse = opts.parse || ((value) => (value instanceof Buffer && !value.length) ? null : value)
 
   function parseBody () {
-    var ctx = this
-    var options = defaultOpts
-    var parse = defaultParse
-    var body = this.request.body
+    let ctx = this
+    let options = defaultOpts
+    let parse = defaultParse
+    let body = this.request.body
     if (body !== undefined) return thunk.call(this, body)
     if (this.is(jsonTypes)) {
       parse = jsonParse
@@ -109,8 +94,8 @@ module.exports = function toaBody (app, opts) {
 }
 
 function getOptions (opts1, opts2, type) {
-  var res = assign({}, opts1, opts2)
-  var limit = res[type + 'Limit']
+  let res = Object.assign({}, opts1, opts2)
+  let limit = res[type + 'Limit']
   if (limit) res.limit = limit
   return res
 }
@@ -123,14 +108,14 @@ function extendType (original, extend) {
 }
 
 function getRawBody (req, opts) {
-  var len = req.headers['content-length']
-  var encoding = req.headers['content-encoding'] || 'identity'
+  let len = req.headers['content-length']
+  let encoding = req.headers['content-encoding'] || 'identity'
   if (len && encoding === 'identity') opts.length = ~~len
   return raw(inflate(req), opts)
 }
 
 function getJsonParse (strict) {
-  return function (str) {
+  return (str) => {
     if (!strict) return str ? JSON.parse(str) : str
     // strict mode always return object
     if (!str) return {}
@@ -143,7 +128,5 @@ function getJsonParse (strict) {
 }
 
 function getFormParse (qs, qsOptions) {
-  return function (str) {
-    return qs.parse(str, qsOptions)
-  }
+  return (str) => qs.parse(str, qsOptions)
 }
