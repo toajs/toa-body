@@ -11,10 +11,10 @@ Request body parser for toa.
 ## Demo
 
 ```js
-var toa = require('toa')
-var toaBody = require('toa-body')
+const Toa = require('toa')
+const toaBody = require('toa-body')
 
-var app = toa()
+const app = new Toa()
 toaBody(app)
 
 app.use(function * () {
@@ -24,10 +24,10 @@ app.listen(3000)
 ```
 
 ```js
-var toa = require('toa')
-var toaBody = require('toa-body')
+const Toa = require('toa')
+const toaBody = require('toa-body')
 
-var app = toa()
+const app = new Toa()
 app.use(toaBody()) //  It will try to parse body for every request.
 
 app.use(function () {
@@ -45,7 +45,7 @@ npm install toa-body
 ## API
 
 ```js
-var toaBody = require('toa-body')
+const toaBody = require('toa-body')
 ```
 ### toaBody(app[, options])
 
@@ -64,7 +64,7 @@ toaBody(app, {
 ```
 - `options.parse`: support custom parse:
 ```js
-var parseXml = require('xml2js').parseString
+const parseXml = require('xml2js').parseString
 
 toaBody(app, {
   parse: function (buf) {
