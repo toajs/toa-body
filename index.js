@@ -29,10 +29,10 @@ module.exports = function toaBody (app, opts) {
     app = null
   }
   opts = opts || {}
-  let extendTypes = opts.extendTypes || {}
+  const extendTypes = opts.extendTypes || {}
 
   // default json types
-  let jsonTypes = [
+  const jsonTypes = [
     'application/json',
     'application/json-patch+json',
     'application/vnd.api+json',
@@ -40,20 +40,20 @@ module.exports = function toaBody (app, opts) {
   ]
 
   // default form types
-  let formTypes = [
+  const formTypes = [
     'application/x-www-form-urlencoded'
   ]
 
   extendType(jsonTypes, extendTypes.json)
   extendType(formTypes, extendTypes.form)
 
-  let jsonOpts = getOptions({jsonLimit: '1mb', encoding: 'utf8'}, opts, 'json')
-  let formOpts = getOptions({jsonLimit: '56kb', encoding: 'utf8'}, opts, 'form')
-  let defaultOpts = getOptions({defaultLimit: '1mb'}, opts, 'default')
+  const jsonOpts = getOptions({jsonLimit: '1mb', encoding: 'utf8'}, opts, 'json')
+  const formOpts = getOptions({jsonLimit: '56kb', encoding: 'utf8'}, opts, 'form')
+  const defaultOpts = getOptions({defaultLimit: '1mb'}, opts, 'default')
 
-  let jsonParse = getJsonParse(opts.strict !== false)
-  let formParse = getFormParse(opts.qs || qs, opts.qsOptions)
-  let defaultParse = opts.parse || ((value) => (value instanceof Buffer && !value.length) ? null : value)
+  const jsonParse = getJsonParse(opts.strict !== false)
+  const formParse = getFormParse(opts.qs || qs, opts.qsOptions)
+  const defaultParse = opts.parse || ((value) => (value instanceof Buffer && !value.length) ? null : value)
 
   function parseBody () {
     let ctx = this

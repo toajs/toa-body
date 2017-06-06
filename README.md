@@ -1,5 +1,5 @@
-toa-body
-====
+# toa-body
+
 Request body parser for toa.
 
 [![NPM version][npm-image]][npm-url]
@@ -47,6 +47,7 @@ npm install toa-body
 ```js
 const toaBody = require('toa-body')
 ```
+
 ### toaBody(app[, options])
 
 It will add `parseBody` method to `context`.
@@ -55,6 +56,7 @@ It will add `parseBody` method to `context`.
 - `options.formLimit`: limit of the `urlencoded` body. If the body ends up being larger than this limit, a 413 error code is returned. Default is `56kb`
 - `options.jsonLimit`: limit of the `json` body. Default is `1mb`
 - `options.extendTypes`: support extend types:
+
 ```js
 toaBody(app, {
   extendTypes: {
@@ -62,7 +64,9 @@ toaBody(app, {
   }
 }))
 ```
+
 - `options.parse`: support custom parse:
+
 ```js
 const parseXml = require('xml2js').parseString
 
@@ -96,6 +100,7 @@ this.parseBody()(function (err, body) {
 Toa>=v1.8.0 required.
 
 ## Licences
+
 (The MIT License)
 
 [npm-url]: https://npmjs.org/package/toa-body
