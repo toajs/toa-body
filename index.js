@@ -9,8 +9,8 @@
 
 const qs = require('qs')
 const raw = require('raw-body')
-const thunk = require('thunks')()
 const inflate = require('inflation')
+const thunk = require('thunks').thunk
 
 // Allowed whitespace is defined in RFC 7159
 // http://www.rfc-editor.org/rfc/rfc7159.txt
@@ -56,11 +56,10 @@ module.exports = function toaBody (app, opts) {
   const defaultParse = opts.parse || ((value) => (value instanceof Buffer && !value.length) ? null : value)
 
   function parseBody () {
-    let ctx = this
     let options = defaultOpts
     let parse = defaultParse
     let body = this.request.body
-    if (body !== undefined) return thunk.call(this, body)
+    if (body !== undefined) return Promise.resolve(body)
     if (this.is(jsonTypes)) {
       parse = jsonParse
       options = jsonOpts
@@ -69,20 +68,23 @@ module.exports = function toaBody (app, opts) {
       options = formOpts
     }
 
-    body = getRawBody(this.req, options).then(function (str) {
-      try {
-        return parse.call(ctx, str)
-      } catch (err) {
-        err.status = 400
-        err.body = str
-        throw err
-      }
-    })
-    return thunk.call(this, body)(function (err, res) {
-      if (err != null) throw err
-      ctx.request.body = res
-      return res
-    })
+    return getRawBody(this.req, options)
+      .then((str) => {
+        return new Promise((resolve, reject) => {
+          thunk(parse.call(this, str))((err, res) => {
+            if (err != null) reject(err)
+            else resolve(res)
+          })
+        }).catch((err) => {
+          err.status = 400
+          err.data = str
+          throw err
+        })
+      })
+      .then((res) => {
+        this.request.body = res
+        return res
+      })
   }
 
   if (app) {

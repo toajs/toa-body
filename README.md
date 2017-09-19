@@ -31,7 +31,7 @@ const app = new Toa()
 app.use(toaBody()) //  It will try to parse body for every request.
 
 app.use(function () {
-  this.body = yield this.request.body
+  this.body = this.request.body
 })
 app.listen(3000)
 ```
@@ -97,7 +97,7 @@ this.parseBody()(function (err, body) {
 
 ### app.use(toaBody([options]))
 
-Toa>=v1.8.0 required.
+Toa >= v2.x required.
 
 ## Licences
 

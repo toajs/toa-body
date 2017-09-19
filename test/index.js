@@ -25,8 +25,7 @@ tman.suite('toa-body', function () {
     tman.it('should parse json body ok', function () {
       const app = new Toa()
       app.use(function () {
-        return this.parseBody()(function (err, body) {
-          assert.strictEqual(err, null)
+        return this.parseBody().then((body) => {
           assert.strictEqual(this.request.body, body)
           assert.deepEqual(this.request.body, {foo: 'bar'})
           this.body = body
